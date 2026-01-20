@@ -1,7 +1,7 @@
 // build a std::vector from CPP in C
 
-// erase(position) -> Erase an element based on an index
-// size() -> returns the size of the vector
+// TODO: USE ENUM FOR ERROR CODES MAYBE
+// TODO: TESTS TO VALIDATE THIS CODE
 
 #include "vectors.h"
 
@@ -55,6 +55,30 @@ int insert(Vector *vector, int value, int position)
     vector->data[i] = buf;
     buf = nextBuf;
   }
+
+  return 0;
+}
+
+int erase(Vector *vector, int position)
+{
+  if (position > vector->size)
+  {
+    printf("Out of bounds");
+    return 1;
+  }
+
+  if (position == vector->size)
+  {
+    vector->size--;
+    return 0;
+  }
+
+  for (int i = position; i < vector->size; i++)
+  {
+    int nextElem = vector->data[i + 1];
+    vector->data[i] = nextElem;
+  }
+  vector->size--;
 
   return 0;
 }
@@ -121,6 +145,10 @@ int main()
     printf("Error inserting value...");
     return 1;
   }
+  printVector(vector);
+
+  res = erase(vector, 4);
+  printf("Erasing a position...\n");
   printVector(vector);
 
   delete(vector);
