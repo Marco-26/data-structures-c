@@ -1,8 +1,3 @@
-// build a std::vector from CPP in C
-
-// TODO: USE ENUM FOR ERROR CODES MAYBE
-// TODO: TESTS TO VALIDATE THIS CODE
-
 #include "vectors.h"
 
 VectorError vectorGrow(Vector *vector)
@@ -116,52 +111,4 @@ Vector *init()
   vector->capacity = 4;
   vector->size = 0;
   return vector;
-}
-
-void printVector(const Vector *vector)
-{
-  for (int i = 0; i < vector->size; i++)
-  {
-    printf("Value: %d, Size: %zu, Capacity: %zu\n", vector->data[i], vector->size, vector->capacity);
-  }
-}
-
-int main()
-{
-  Vector *vector = init();
-  if (vector == NULL || vector->data == NULL)
-  {
-    return 1;
-  }
-
-  for (int i = 0; i < 8; i++)
-  {
-    int res = vectorPushBack(vector, i);
-    if (res == VECTOR_ERR_ALLOC)
-    {
-      printf("Memory allocation failed");
-      break;
-    }
-    printf("Value: %d, Size: %zu, Capacity: %zu\n", vector->data[i], vector->size, vector->capacity);
-  }
-
-  printf("Modifying array...\n");
-  int res = vectorInsert(vector, 38, 3);
-  if (res == VECTOR_ERR_ALLOC)
-  {
-    printf("Error inserting value...");
-    return VECTOR_ERR_ALLOC;
-  }
-  printVector(vector);
-
-  res = vectorErase(vector, 4);
-  if (res == VECTOR_ERR_OUT_OF_BOUNDS)
-  {
-    printf("Error erasing, position out of bonds...");
-    return VECTOR_ERR_OUT_OF_BOUNDS;
-  }
-  printf("Erasing a position...\n");
-  printVector(vector);
-
-  vectorDestroy(vector);
 }
