@@ -5,43 +5,51 @@
 
 #include "vectors.h"
 
-int grow(Vector *vector)
+VectorError vectorGrow(Vector *vector)
 {
   // increase capacity as we go
   int *newAlloc = realloc(vector->data, (vector->capacity * 2) * sizeof(int));
 
   if (newAlloc == NULL)
-    return 1;
+    return VECTOR_ERR_ALLOC;
 
   vector->capacity *= 2;
   vector->data = newAlloc;
-  return 0;
+  return VECTOR_OK;
 }
 
-int push_back(Vector *vector, int value)
+VectorError vectorPushBack(Vector *vector, int value)
 {
   if (vector->size == vector->capacity)
   {
-    grow(vector);
+    const int res = vectorGrow(vector);
+    if (res == VECTOR_ERR_ALLOC)
+    {
+      return VECTOR_ERR_ALLOC;
+    }
   }
   vector->data[vector->size] = value;
   vector->size++;
-  return 0;
+  return VECTOR_OK;
 }
 
-int insert(Vector *vector, int value, int position)
+VectorError vectorInsert(Vector *vector, int value, int position)
 {
   if (position >= vector->size)
   {
-    return push_back(vector, value);
+    const int res = vectorPushBack(vector, value);
+    if (res == VECTOR_ERR_ALLOC)
+    {
+      return VECTOR_ERR_ALLOC;
+    }
   }
 
   if (vector->size == vector->capacity)
   {
-    int res = grow(vector);
-    if (res == 1)
+    const int res = vectorGrow(vector);
+    if (res == VECTOR_ERR_ALLOC)
     {
-      return 1;
+      return VECTOR_ERR_ALLOC;
     }
   }
 
@@ -56,21 +64,20 @@ int insert(Vector *vector, int value, int position)
     buf = nextBuf;
   }
 
-  return 0;
+  return VECTOR_OK;
 }
 
-int erase(Vector *vector, int position)
+VectorError vectorErase(Vector *vector, int position)
 {
   if (position > vector->size)
   {
-    printf("Out of bounds");
-    return 1;
+    return VECTOR_ERR_OUT_OF_BOUNDS;
   }
 
   if (position == vector->size)
   {
     vector->size--;
-    return 0;
+    return VECTOR_OK;
   }
 
   for (int i = position; i < vector->size; i++)
@@ -80,10 +87,10 @@ int erase(Vector *vector, int position)
   }
   vector->size--;
 
-  return 0;
+  return VECTOR_OK;
 }
 
-void delete(Vector *vector)
+void vectorDestroy(Vector *vector)
 {
   free(vector->data);
   free(vector);
@@ -111,7 +118,7 @@ Vector *init()
   return vector;
 }
 
-void printVector(Vector *vector)
+void printVector(const Vector *vector)
 {
   for (int i = 0; i < vector->size; i++)
   {
@@ -129,8 +136,8 @@ int main()
 
   for (int i = 0; i < 8; i++)
   {
-    int res = push_back(vector, i);
-    if (res == -1)
+    int res = vectorPushBack(vector, i);
+    if (res == VECTOR_ERR_ALLOC)
     {
       printf("Memory allocation failed");
       break;
@@ -139,17 +146,22 @@ int main()
   }
 
   printf("Modifying array...\n");
-  int res = insert(vector, 38, 3);
-  if (res == 1)
+  int res = vectorInsert(vector, 38, 3);
+  if (res == VECTOR_ERR_ALLOC)
   {
     printf("Error inserting value...");
-    return 1;
+    return VECTOR_ERR_ALLOC;
   }
   printVector(vector);
 
-  res = erase(vector, 4);
+  res = vectorErase(vector, 4);
+  if (res == VECTOR_ERR_OUT_OF_BOUNDS)
+  {
+    printf("Error erasing, position out of bonds...");
+    return VECTOR_ERR_OUT_OF_BOUNDS;
+  }
   printf("Erasing a position...\n");
   printVector(vector);
 
-  delete(vector);
+  vectorDestroy(vector);
 }
