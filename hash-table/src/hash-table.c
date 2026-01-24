@@ -24,6 +24,41 @@ HashTable *hashTableInit()
   return hashTable;
 }
 
+Entry *entryInit(const char *k, const char *v, Entry *child)
+{
+  if (k == NULL || v == NULL)
+  {
+    return NULL;
+  }
+
+  Entry *newEntry = (Entry *)malloc(sizeof(Entry));
+  if (newEntry == NULL)
+  {
+    return NULL;
+  }
+
+  char *key = malloc(strlen(k) + 1);
+  char *value = malloc(strlen(v) + 1);
+
+  if (key == NULL || value == NULL)
+  {
+    if (key != NULL)
+    {
+      free(key);
+    }
+    free(newEntry);
+    return NULL;
+  }
+
+  strcpy(key, k);
+  strcpy(value, v);
+
+  newEntry->key = key;
+  newEntry->value = value;
+  newEntry->next = child;
+  return newEntry;
+}
+
 uint64_t FNV_1a(const char *text)
 {
   uint64_t hash = 14695981039346656037ULL;
@@ -39,6 +74,21 @@ uint64_t FNV_1a(const char *text)
   return hash;
 }
 
+int hashTablePut(HashTable *hashTable, const char *k, const char *v)
+{
+  // 1. compute the hash for key
+  // 2. get the index for the hashed value
+  uint64_t hashed = FNV_1a(k);
+  int index = hashed % hashTable->capacity;
+
+  // 3. If index already has values, create a new head of linked list and add the existing one as "child"
+  if (hashTable->buckets[index]->value)
+  {
+  }
+  // 4. If not just create an head
+  return 0;
+}
+
 int main()
 {
   HashTable *hashTable = hashTableInit();
@@ -46,4 +96,6 @@ int main()
   uint64_t hashed = FNV_1a(text);
   int index = hashed % hashTable->capacity;
   printf("Hash: %llu %d\n", hashed, index);
+  Entry *entry = entryInit("PATH", "home/downloads/file.c", NULL);
+  printf("Entry object:\n key: %s, value: %s\n", entry->key, entry->value);
 }

@@ -26,6 +26,7 @@ typedef struct
 } HashTable;
 
 HashTable *hashTableInit();
+Entry *entryInit(const char *k, const char *v, Entry *child);
 // Design choice: replace on existing key
 int hashTablePut(HashTable *hashTable, const char *k, const char *v);
 const char *hashTableGet(HashTable *hashTable, const char *k);
