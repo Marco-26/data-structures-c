@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define BUCKET_LENGTH 128
 
@@ -29,5 +30,6 @@ int hashTablePut(HashTable *hashTable, const char *k, const char *v); // replace
 const char *hashTableGet(HashTable *hashTable, const char *k);
 int hashTableRemove(HashTable *hashTable, const char *k);
 void hashTableDestroy(HashTable *hashTable);
+uint64_t hash(const char *text); // our hash function, not the index, index comes after
 
 #endif
