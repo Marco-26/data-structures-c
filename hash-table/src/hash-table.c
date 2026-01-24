@@ -81,12 +81,49 @@ int hashTablePut(HashTable *hashTable, const char *k, const char *v)
   uint64_t hashed = FNV_1a(k);
   int index = hashed % hashTable->capacity;
 
-  // 3. If index already has values, create a new head of linked list and add the existing one as "child"
-  if (hashTable->buckets[index]->value)
+  // 3. If current bucket is empty, just add the head
+  if (hashTable->buckets[index] == NULL)
   {
+    Entry *entry = entryInit(k, v, NULL);
+    if (entry == NULL)
+    {
+      return 1;
+    }
+
+    hashTable->buckets[index] = entry;
+    return 0;
   }
-  // 4. If not just create an head
+
+  // 4. If current bucket is not empty, create a new entry with the current entries as child of new entry
+  Entry *entry = entryInit(k, v, hashTable->buckets[index]);
+  hashTable->buckets[index] = entry;
+
   return 0;
+}
+
+const char *hashTableGet(HashTable *hashTable, const char *k)
+{
+  uint64_t hashed = FNV_1a(k);
+  int index = hashed % hashTable->capacity;
+
+  Entry *head = hashTable->buckets[index];
+  if (head == NULL)
+  {
+    printf("NULL");
+    return "";
+  }
+
+  Entry *current = head;
+  while (current)
+  {
+    if (strcmp(current->key, k) == 0)
+    {
+      return current->value;
+    }
+
+    current = current->next;
+  }
+  return "";
 }
 
 int main()
@@ -96,6 +133,17 @@ int main()
   uint64_t hashed = FNV_1a(text);
   int index = hashed % hashTable->capacity;
   printf("Hash: %llu %d\n", hashed, index);
+
   Entry *entry = entryInit("PATH", "home/downloads/file.c", NULL);
   printf("Entry object:\n key: %s, value: %s\n", entry->key, entry->value);
+
+  int res = hashTablePut(hashTable, "PATH", "home/downloads/file.c");
+  if (res == 1)
+  {
+    printf("Error adding the value");
+    return 1;
+  }
+
+  const char *result = hashTableGet(hashTable, "PATH");
+  printf("Searching the hash table, index key: %s, result value: %s\n", "PATH", result);
 }

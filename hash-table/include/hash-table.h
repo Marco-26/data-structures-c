@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUCKET_LENGTH 128
+#define BUCKET_LENGTH 16
 
 typedef struct Entry
 {
