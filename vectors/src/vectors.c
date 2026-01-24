@@ -1,4 +1,4 @@
-#include "vectors.h"
+#include "../include/vectors.h"
 
 VectorError vectorGrow(Vector *vector)
 {

@@ -26,10 +26,12 @@ typedef struct
 } HashTable;
 
 HashTable *hashTableInit();
-int hashTablePut(HashTable *hashTable, const char *k, const char *v); // replace on existing value
+// Design choice: replace on existing key
+int hashTablePut(HashTable *hashTable, const char *k, const char *v);
 const char *hashTableGet(HashTable *hashTable, const char *k);
 int hashTableRemove(HashTable *hashTable, const char *k);
 void hashTableDestroy(HashTable *hashTable);
-uint64_t hash(const char *text); // our hash function, not the index, index comes after
+// our hash function, based on Fowler–Noll–Vo
+uint64_t FNV_1a(const char *text);
 
 #endif

@@ -24,7 +24,7 @@ HashTable *hashTableInit()
   return hashTable;
 }
 
-uint64_t hash(const char *text)
+uint64_t FNV_1a(const char *text)
 {
   uint64_t hash = 14695981039346656037ULL;
   uint64_t prime = 1099511628211ULL;
@@ -41,7 +41,9 @@ uint64_t hash(const char *text)
 
 int main()
 {
-  const char *text = "Hello world";
-  uint64_t res = hash(text);
-  printf("Hash: %llu", res);
+  HashTable *hashTable = hashTableInit();
+  const char *text = "Test";
+  uint64_t hashed = FNV_1a(text);
+  int index = hashed % hashTable->capacity;
+  printf("Hash: %llu %d\n", hashed, index);
 }
