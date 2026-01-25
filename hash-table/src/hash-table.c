@@ -150,8 +150,24 @@ const char *hashTableGet(HashTable *hashTable, const char *k)
 
   return NULL;
 }
+
 void hashTableDestroy(HashTable *hashTable)
 {
-  // FREE EVERY BUCKET
+  if (hashTable == NULL)
+    return;
+
+  for (int i = 0; i < hashTable->capacity; i++)
+  {
+    Entry *current = hashTable->buckets[i];
+    while (current)
+    {
+      Entry *next = current->next;
+      free(current->value);
+      free(current->key);
+      free(current);
+      current = next;
+    }
+  }
+  free(hashTable->buckets);
   free(hashTable);
 }

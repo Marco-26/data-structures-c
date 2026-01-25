@@ -146,7 +146,7 @@ int main(void)
   }
 
   // Don't call hashTableDestroy until you implement it correctly.
-  // hashTableDestroy(ht);
+  hashTableDestroy(ht);
 
   return tests_failed ? 1 : 0;
 }
