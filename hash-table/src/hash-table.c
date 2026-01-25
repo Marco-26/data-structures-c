@@ -42,10 +42,8 @@ Entry *entryInit(const char *k, const char *v, Entry *child)
 
   if (key == NULL || value == NULL)
   {
-    if (key != NULL)
-    {
-      free(key);
-    }
+    free(key);
+    free(value);
     free(newEntry);
     return NULL;
   }
@@ -76,10 +74,14 @@ uint64_t FNV_1a(const char *text)
 
 int hashTablePut(HashTable *hashTable, const char *k, const char *v)
 {
+  if (k == NULL || v == NULL)
+  {
+    return 1;
+  }
   // 1. compute the hash for key
   // 2. get the index for the hashed value
   uint64_t hashed = FNV_1a(k);
-  int index = hashed % hashTable->capacity;
+  size_t index = hashed % hashTable->capacity;
 
   // 3. If current bucket is empty, just add the head
   if (hashTable->buckets[index] == NULL)
@@ -91,12 +93,35 @@ int hashTablePut(HashTable *hashTable, const char *k, const char *v)
     }
 
     hashTable->buckets[index] = entry;
+    hashTable->size++;
     return 0;
   }
 
-  // 4. If current bucket is not empty, create a new entry with the current entries as child of new entry
+  Entry *current = hashTable->buckets[index];
+  while (current)
+  {
+    if (strcmp(current->key, k) == 0)
+    {
+      char *newValue = malloc(strlen(v) + 1);
+
+      if (newValue == NULL)
+      {
+        return 1;
+      }
+
+      free(current->value);
+      strcpy(newValue, v);
+      current->value = newValue;
+      return 0;
+    }
+
+    current = current->next;
+  }
+
+  // 4. If current bucket is not empty, and no entry equals this, create a new entry with the current entries as child of new entry
   Entry *entry = entryInit(k, v, hashTable->buckets[index]);
   hashTable->buckets[index] = entry;
+  hashTable->size++;
 
   return 0;
 }
@@ -109,7 +134,6 @@ const char *hashTableGet(HashTable *hashTable, const char *k)
   Entry *head = hashTable->buckets[index];
   if (head == NULL)
   {
-    printf("NULL");
     return "";
   }
 
@@ -123,7 +147,13 @@ const char *hashTableGet(HashTable *hashTable, const char *k)
 
     current = current->next;
   }
-  return "";
+
+  return NULL;
+}
+void hashTableDestroy(HashTable *hashTable)
+{
+  // FREE EVERY BUCKET
+  free(hashTable);
 }
 
 int main()
@@ -131,7 +161,7 @@ int main()
   HashTable *hashTable = hashTableInit();
   const char *text = "Test";
   uint64_t hashed = FNV_1a(text);
-  int index = hashed % hashTable->capacity;
+  size_t index = hashed % hashTable->capacity;
   printf("Hash: %llu %d\n", hashed, index);
 
   Entry *entry = entryInit("PATH", "home/downloads/file.c", NULL);
@@ -145,5 +175,25 @@ int main()
   }
 
   const char *result = hashTableGet(hashTable, "PATH");
+  printf("Searching the hash table, index key: %s, result value: %s\n", "PATH", result);
+
+  res = hashTablePut(hashTable, "PATH", "another one");
+  if (res == 1)
+  {
+    printf("Error adding the value");
+    return 1;
+  }
+
+  result = hashTableGet(hashTable, "PATH");
+  printf("Searching the hash table, index key: %s, result value: %s\n", "PATH", result);
+
+  res = hashTablePut(hashTable, "SYS", "test");
+  if (res == 1)
+  {
+    printf("Error adding the value");
+    return 1;
+  }
+
+  result = hashTableGet(hashTable, "SYS");
   printf("Searching the hash table, index key: %s, result value: %s\n", "PATH", result);
 }
